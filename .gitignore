@@ -1,0 +1,12 @@
+.venv/
+.localemu-venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+runtime/
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+.env
+logs/

@@ -1,0 +1,3 @@
+# Local AWS emulator used only for development/integration testing.
+# Kept separate from application dependencies so production images do not carry the emulator.
+localemu==1.2.0
