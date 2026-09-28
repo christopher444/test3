@@ -209,39 +209,7 @@ Verify the installation:
 
 # Start LocalEmu
 
-## 7. Start in strict IAM mode — recommended
-
-```bash
-IAM_ENFORCEMENT=1 .localemu-venv/bin/localemu start
-```
-
-This starts LocalEmu with:
-
-- persistence enabled
-- strict IAM enforcement enabled
-- loopback-only host binding
-- port `4566`
-
-Equivalent environment/behavior is defined by the `Makefile` target.
-
-Check health:
-
-```bash
-curl -fsS http://127.0.0.1:4566/_localemu/health
-```
-
-You should receive JSON rather than a connection error.
-
-You can also inspect the LocalEmu dashboard locally at:
-
-```text
-AFter port forwarding 
-
-http://localhost:4566/_localemu/dashboard#/cloudtrail
-```
-
-On a remote VPS this URL is intentionally bound to loopback; use SSH port forwarding if you need the browser dashboard rather than exposing port 4566 publicly.
-
+## 7. 
 For a permissive development session without strict IAM enforcement:
 
 ```bash
