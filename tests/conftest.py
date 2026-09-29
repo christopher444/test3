@@ -62,6 +62,7 @@ class RecordingQueue:
         self.sent: list[BatchPointer] = []
         self.messages: list[ReceivedMessage] = []
         self.deleted: list[str] = []
+        self.extended: list[tuple[ReceivedMessage, int]] = []
         self.released: list[tuple[ReceivedMessage, int]] = []
         self._counter = 0
 
@@ -80,6 +81,9 @@ class RecordingQueue:
 
     def delete(self, receipt_handle: str) -> None:
         self.deleted.append(receipt_handle)
+
+    def extend_visibility(self, message: ReceivedMessage, timeout_seconds: int) -> None:
+        self.extended.append((message, timeout_seconds))
 
     def release(self, message: ReceivedMessage, delay_seconds: int = 5) -> None:
         self.released.append((message, delay_seconds))

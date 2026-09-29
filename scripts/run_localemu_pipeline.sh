@@ -22,10 +22,8 @@ export BATCHES_TABLE=catalogue-sync-batches
 export IDEMPOTENCY_TABLE=catalogue-sync-idempotency
 export QUEUE_URL="${QUEUE_URL:-$(terraform -chdir=infra/local output -raw queue_url)}"
 export KMS_KEY_ID="${KMS_KEY_ID:-$(terraform -chdir=infra/local output -raw kms_key_arn)}"
-export RUN_LOCK_SECONDS="${RUN_LOCK_SECONDS:-120}"
-export RUN_LOCK_HEARTBEAT_SECONDS="${RUN_LOCK_HEARTBEAT_SECONDS:-30}"
 export AWS_MAX_POOL_CONNECTIONS="${AWS_MAX_POOL_CONNECTIONS:-100}"
-export SQS_VISIBILITY_TIMEOUT_SECONDS="${SQS_VISIBILITY_TIMEOUT_SECONDS:-300}"
+export SQS_VISIBILITY_HEARTBEAT_SECONDS="${SQS_VISIBILITY_HEARTBEAT_SECONDS:-60}"
 
 # The supplied WMS mock's intended transient 429/503 branches currently surface as 500s
 # because of a fixture bug. The production default remains false; this local mock run opts

@@ -57,6 +57,9 @@ class Settings:
     sqs_visibility_timeout_seconds: int = int(
         os.getenv("SQS_VISIBILITY_TIMEOUT_SECONDS", "300")
     )
+    sqs_visibility_heartbeat_seconds: float = float(
+        os.getenv("SQS_VISIBILITY_HEARTBEAT_SECONDS", "60")
+    )
     queue_url: str | None = os.getenv("QUEUE_URL") or None
     runs_table: str = os.getenv("RUNS_TABLE", "catalogue-sync-runs")
     batches_table: str = os.getenv("BATCHES_TABLE", "catalogue-sync-batches")
@@ -87,6 +90,11 @@ class Settings:
             raise ValueError("AWS_MAX_POOL_CONNECTIONS must be positive")
         if self.sqs_visibility_timeout_seconds < 1:
             raise ValueError("SQS_VISIBILITY_TIMEOUT_SECONDS must be positive")
+        if not 0 < self.sqs_visibility_heartbeat_seconds < self.sqs_visibility_timeout_seconds:
+            raise ValueError(
+                "SQS_VISIBILITY_HEARTBEAT_SECONDS must be > 0 and less than "
+                "SQS_VISIBILITY_TIMEOUT_SECONDS"
+            )            
     @property
     def http_timeout(self):
         import httpx

@@ -57,6 +57,10 @@ class AcceptingWms:
     async def send_batch(self, products):
         return {"accepted": [product["sku"] for product in products], "rejected": []}
 
+class SlowAcceptingWms:
+    async def send_batch(self, products):
+        await asyncio.sleep(0.04)
+        return {"accepted": [product["sku"] for product in products], "rejected": []}
 
 class OmittedDispositionWms:
     async def send_batch(self, products):
@@ -105,7 +109,7 @@ def test_partial_success_is_recorded_and_redelivery_does_not_resend(filesystem_s
     assert wms.calls == 1
     assert state.get_product(product_version_key(products[0]))["status"] == "ACCEPTED"
     assert state.get_product(product_version_key(products[1]))["status"] == "REJECTED"
-
+    assert recording_queue.extended[0] == (message, settings.sqs_visibility_timeout_seconds)
     second = asyncio.run(process_message(message, filesystem_store, state, recording_queue, wms))
 
     assert second["skipped_duplicate"] == 2
@@ -115,6 +119,31 @@ def test_partial_success_is_recorded_and_redelivery_does_not_resend(filesystem_s
     assert run["accepted"] == 1
     assert run["rejected"] == 1
 
+def test_long_running_batch_renews_sqs_visibility_while_processing(filesystem_store, recording_queue):
+    state = MemoryStateStore()
+    product = _product("P0000011")
+    message = _prepare_message(filesystem_store, state, "run-heartbeat", "run-heartbeat-00000001", [product], "heartbeat-rh")
+    cfg = replace(
+        settings,
+        sqs_visibility_timeout_seconds=5,
+        sqs_visibility_heartbeat_seconds=0.01,
+    )
+
+    result = asyncio.run(
+        process_message(
+            message,
+            filesystem_store,
+            state,
+            recording_queue,
+            SlowAcceptingWms(),
+            cfg,
+        )
+    )
+
+    assert result["accepted"] == 1
+    assert len(recording_queue.extended) >= 2
+    assert all(timeout == 5 for _, timeout in recording_queue.extended)
+    assert recording_queue.deleted == ["heartbeat-rh"]
 
 def test_inflight_redelivery_is_quarantined_not_resent(filesystem_store, recording_queue):
     state = MemoryStateStore()

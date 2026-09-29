@@ -17,6 +17,7 @@ def products(page:int=1,page_size:int=500,x_api_key:str|None=Header(default=None
     request_count+=1
     if request_count%13==0: return JSONResponse(429,{"detail":"Rate limit exceeded"},headers={"Retry-After":"1"})
     if request_count%19==0: return JSONResponse(503,{"detail":"Product API temporarily unavailable"},headers={"Retry-After":"2"})
-    start=(page-1)*page_size+1; items=[] if start>TOTAL_PRODUCTS else [product_for(i) for i in range(start,min(start+page_size,TOTAL_PRODUCTS+1))]
+    start=(page-1)*page_size+1; 
+    items=[] if start>TOTAL_PRODUCTS else [product_for(i) for i in range(start,min(start+page_size,TOTAL_PRODUCTS+1))]
     has_next=start+len(items)<=TOTAL_PRODUCTS
     return {"products":items,"page":page,"page_size":page_size,"total":TOTAL_PRODUCTS,"has_next":has_next,"next_page":page+1 if has_next else None}

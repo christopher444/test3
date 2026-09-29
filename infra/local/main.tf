@@ -140,7 +140,7 @@ resource "aws_sqs_queue" "work" {
   name                        = "catalogue-sync-work.fifo"
   fifo_queue                  = true
   content_based_deduplication = false
-  visibility_timeout_seconds  = 180
+  visibility_timeout_seconds  = 900
   message_retention_seconds   = 1209600
   kms_master_key_id           = aws_kms_key.data.arn
 

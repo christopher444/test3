@@ -34,3 +34,4 @@ def test_run_lease_heartbeat_is_shorter_than_lease():
 
 def test_sqs_visibility_timeout_covers_long_batch_processing_window():
     assert settings.sqs_visibility_timeout_seconds >= 180
+    assert 0 < settings.sqs_visibility_heartbeat_seconds < settings.sqs_visibility_timeout_seconds    

@@ -22,6 +22,7 @@ class Queue(Protocol):
     def send(self, pointer: BatchPointer) -> None: ...
     def receive(self, max_messages: int = 10, wait_seconds: int = 10) -> list[ReceivedMessage]: ...
     def delete(self, receipt_handle: str) -> None: ...
+    def extend_visibility(self, message: ReceivedMessage, timeout_seconds: int) -> None: ...    
     def release(self, message: ReceivedMessage, delay_seconds: int = 5) -> None: ...
 
 
@@ -42,6 +43,9 @@ class MemoryQueue:
         return result
 
     def delete(self, receipt_handle: str) -> None:
+        return None
+
+    def extend_visibility(self, message: ReceivedMessage, timeout_seconds: int) -> None:
         return None
 
     def release(self, message: ReceivedMessage, delay_seconds: int = 5) -> None:
@@ -85,6 +89,13 @@ class SQSQueue:
 
     def delete(self, receipt_handle: str) -> None:
         self.client.delete_message(QueueUrl=self.cfg.queue_url, ReceiptHandle=receipt_handle)
+
+    def extend_visibility(self, message: ReceivedMessage, timeout_seconds: int) -> None:
+        self.client.change_message_visibility(
+            QueueUrl=self.cfg.queue_url,
+            ReceiptHandle=message.receipt_handle,
+            VisibilityTimeout=max(1, int(timeout_seconds)),
+        )
 
     def release(self, message: ReceivedMessage, delay_seconds: int = 5) -> None:
         self.client.change_message_visibility(
