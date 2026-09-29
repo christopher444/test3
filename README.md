@@ -426,6 +426,10 @@ The application adapters are therefore exercised against AWS-compatible:
 
 rather than falling back to in-memory/file-only persistence.
 
+
+RUN_ID=$(~/venv4/bin/awsemu dynamodb scan --region eu-west-1 --table-name catalogue-sync-runs --projection-expression "run_id,started_at" --output json | jq -r '.Items | map(select(.run_id.S != "__ACTIVE_RUN__" and .started_at.N != null)) | max_by(.started_at.N | tonumber) | .run_id.S'); echo "Watching run: $RUN_ID"; watch -n 5 "~/venv4/bin/awsemu dynamodb get-item --region eu-west-1 --table-name catalogue-sync-runs --key '{\"run_id\":{\"S\":\"$RUN_ID\"}}' --query 'Item.{status:status.S,worker:worker_status.S,completed:completed_batches.N,total:total_batches.N,accepted:accepted.N,rejected:rejected.N,skipped:skipped_duplicate.N,ambiguous:ambiguous.N,failed:request_failed.N}'"
+
+
 ## 14. Inspect local AWS state
 
 LocalEmu ships `awsemu`, which automatically targets the emulator.

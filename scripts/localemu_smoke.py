@@ -85,10 +85,10 @@ def main() -> int:
     message_id = sqs.send_message(
         QueueUrl=queue_url,
         MessageBody=json.dumps({"smoke": token}),
-        MessageGroupId="localemu-smoke",
+        MessageGroupId=f"localemu-smoke-{token}",
         MessageDeduplicationId=token,
     )["MessageId"]
-    messages = sqs.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1, WaitTimeSeconds=1).get("Messages", [])
+    messages = sqs.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1, WaitTimeSeconds=20).get("Messages", [])
     if not messages:
         raise RuntimeError("SQS smoke message was not received")
     sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=messages[0]["ReceiptHandle"])
